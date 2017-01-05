@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include "Emulator8080p.cpp"
 
-int Disassemble8080Op (unsigned char *codebuffer, int pc);
-int Disassemble8080Op (unsigned char *codebuffer, int pc)
+int Disassemble8080p (unsigned char *codebuffer, int pc)
 {
 	unsigned char *code = &codebuffer[pc];
 	int opbytes = 1;
@@ -47,9 +46,16 @@ int Disassemble8080Op (unsigned char *codebuffer, int pc)
 		case 0x20: printf("RIM"); break;
 		case 0x21: printf("LXI	H,#$%02x%02x", code[2], code[1]); opbytes = 3; break;
 		case 0x22: printf("SHLD	$%02x%02x", code[2], code[1]); opbytes = 3; break;
- 	
+ 		
+		case 0x3a: printf("LDA	#%02x%02x", code[2], code[1]); opbytes = 3; break;
 		case 0x3e: printf("MVI	A,#0x%02x", code[1]); opbytes = 2; break;
-		
+		case 0x7a: printf("MOV	A,D"); break;
+		case 0x7b: printf("MOV	A,E"); break;
+		case 0x7c: printf("MOV	A,H"); break;
+		case 0x7e: printf("MOV	A,M"); break;
+		case 0x80: printf("ADD	B"); break;
+		case 0x81: printf("ADD	C"); break;
+		case 0x86: printf("ADD	M"); break;
 		case 0xc1: printf("POP	B"); break;
 		case 0xc2: printf("JNZ	#%02x%02x", code[2], code[1]); opbytes = 3; break;
 		case 0xc3: printf("JMP	$%02x%02x", code[2], code[1]); opbytes = 3; break;
