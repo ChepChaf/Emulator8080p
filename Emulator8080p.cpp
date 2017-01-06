@@ -297,6 +297,11 @@ int Emulate8080p(State8080* state)
 		}	
 		break;
 		
+		case 0xc9:			// RET
+			state->pc = state->memory[state->sp] | (state->memory[state->sp + 1] << 8);
+			state->sp += 2;
+			break;
+
 		case 0xcd:		// CALL adress
 		{	
 			uint16_t		ret = state->pc + 2;
@@ -307,17 +312,34 @@ int Emulate8080p(State8080* state)
 		}	
 		break;
 
-		case 0xc9:		// RET
-			state->pc = state->memory[state->sp] | (state->memory[state->sp+1] << 8);
+		case 0xd1:		// POP	D
+			state->e = state->memory[state->sp];
+			state->d = state->memory[state->sp + 1];
 			state->sp += 2;
 			break;
 		
+		case 0xd3:		// OUT	D8
+			state->pc++;
+			break;
+
 		case 0xd5:		// PUSH D
 		{
 			state->memory[state->sp - 2] = state->e;
 			state->memory[state->sp - 1] = state->d;
 			state->memory[state->sp] = state->sp - 2;
 		}
+		
+		case 0xe1:		// POP	H
+			state->l = state->memory[state->sp];
+			state->h = state->memory[state->sp + 1];
+			state->sp += 2;
+			break;
+
+		case 0xe5:		// PUSH	H
+			state->memory[state->sp - 2] = state->l;
+			state->memory[state->sp - 1] = state->h;
+			state->sp -= 2;
+			break;
 
 		case 0xe6:		// ANI byte
 		{
@@ -330,6 +352,17 @@ int Emulate8080p(State8080* state)
 		}		
 		break;			
 		
+		case 0xeb:		// XCHG
+		{
+			uint8_t temp_h = state->h;
+			uint8_t temp_l = state->l;
+			state->h = state->d;
+			state->l = state->e;
+			state->d = temp_h;
+			state->e = temp_l;
+		}
+		break;
+
 		case 0xf1:		//POP PSW
 		{	
 			state->a = state->memory[state->sp+1];
@@ -356,6 +389,9 @@ int Emulate8080p(State8080* state)
 		}	
 		break;
 		
+		case 0xfb:		// EI
+			state->int_enable = 1;
+
 		case 0xfe:		// CPI byte
 		{
 			uint8_t x = state->a - opcode[1];
